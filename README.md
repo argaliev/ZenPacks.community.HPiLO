@@ -18,6 +18,7 @@ Components provides:
 -  Processors
 
 Monitoring only checks status of components, no performance information available.
+To enable events, bind template HPiLOEvents manually to appropriate Device Class in Zenoss.
 
 Requirements & Dependencies
 ===========================
