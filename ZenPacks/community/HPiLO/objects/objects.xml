@@ -1,0 +1,5 @@
+<objects>
+<!-- ('', 'zport', 'dmd', 'Events', 'Status', 'HPiLO') -->
+<object id="/zport/dmd/Events/Status/HPiLO" module="Products.ZenEvents.EventClass" class="EventClass">
+</object>
+</objects>

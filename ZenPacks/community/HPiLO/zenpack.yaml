@@ -1,0 +1,146 @@
+name: ZenPacks.community.HPiLO
+
+device_classes:
+  /Server:
+    templates:
+      HPiLOEvents:
+        description: HP iLO Global Events Template.
+        datasources:
+          events:
+            enabled: True
+            type: Python
+            severity: 5
+            eventClass: /Status/HPiLO
+            plugin_classname: ZenPacks.community.HPiLO.dsplugins.Events
+            cycletime: "300"
+
+zProperties:
+  zManageInterfaceIP:
+    category: ComplexPing
+    type: string
+    default: ""
+  zILoUsername:
+    category: HPiLO
+    type: string
+    default: ""
+  zILoPassword:
+    category: HPiLO
+    type: password
+    default: ""
+
+classes:
+
+  ILoEmbeddedHealth:
+    base: [zenpacklib.Component]
+    label: ILoEmbeddedHealth
+    plural_short_label: embeddedhealth
+    properties:
+      title:
+        label: Label
+        content_width: 150
+        order: 1
+      status:
+        label: Status
+        order: 2
+
+  ILoPowerSupply:
+    base: [zenpacklib.Component]
+    label: Power Supplie
+    plural_short_label: power_supplies
+    properties:
+      status:
+        label: Status
+
+  ILoVRM:
+    base: [zenpacklib.Component]
+    label: VRM
+    plural_short_label: vrm
+    properties:
+      status:
+        label: Status
+
+  ILoMemory:
+    base: [zenpacklib.Component]
+    label: Memory Module
+    plural_short_label: memory
+    properties:
+      memory_size:
+        label: Size
+      memory_speed:
+        label: Speed
+
+  ILoFan:
+    base: [zenpacklib.Component]
+    label: Fan
+    plural_short_label: fans
+    properties:
+      zone:
+        label: Slot
+      speed:
+        label: Speed
+      status:
+        label: Status
+
+  ILoTemperature:
+    base: [zenpacklib.Component]
+    label: Temperature Sensor
+    plural_short_label: temperature
+    properties:
+      currentreading:
+        label: Temperature
+      location:
+        label: Location
+      status:
+        label: Status
+      caution:
+        label: threshold_warning
+      critical:
+        label: threshold_critical
+
+  ILoProcessor:
+    base: [zenpacklib.Component]
+    label: Processor
+    plural_short_label: processors
+    properties:
+      internal_l1_cache:
+        label: L1
+      internal_l2_cache:
+        label: L2
+      internal_l3_cache:
+        label: L3
+      execution_technology:
+        label: Technology
+      speed:
+        label: Speed
+
+  ILoHDD:
+    base: [zenpacklib.Component]
+    label: Hard Disk
+    plural_short_label: drive_bays
+    properties:
+      bay:
+        label: Bay
+        type: int
+      product_id:
+        label: Serial
+      status:
+        label: Status
+
+  ILoPort:
+    base: [zenpacklib.Component]
+    label: Port
+    plural_short_label: nic_information
+    properties:
+      mac_address:
+        label: MAC address
+
+class_relationships:
+  - Products.ZenModel.Device.Device 1:MC ILoEmbeddedHealth
+  - Products.ZenModel.Device.Device 1:MC ILoPowerSupply
+  - Products.ZenModel.Device.Device 1:MC ILoVRM
+  - Products.ZenModel.Device.Device 1:MC ILoMemory
+  - Products.ZenModel.Device.Device 1:MC ILoFan
+  - Products.ZenModel.Device.Device 1:MC ILoTemperature
+  - Products.ZenModel.Device.Device 1:MC ILoProcessor
+  - Products.ZenModel.Device.Device 1:MC ILoHDD
+  - Products.ZenModel.Device.Device 1:MC ILoPort
