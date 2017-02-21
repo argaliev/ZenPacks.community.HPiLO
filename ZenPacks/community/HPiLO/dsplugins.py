@@ -1,5 +1,6 @@
 # Twisted Imports
 from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.threads import deferToThread
 
 # Zenoss Imports
 from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource import PythonDataSourcePlugin
@@ -53,7 +54,7 @@ class Events(PythonDataSourcePlugin):
         ilo = hpilo.Ilo(ds0.zManageInterfaceIP, login=ds0.zILoUsername, password=ds0.zILoPassword)
 
         try:
-            em_health = yield ilo.get_embedded_health()
+            em_health = yield deferToThread(ilo.get_embedded_health)
         except Exception, e:
             log.error(
                 "%s: %s", config.id, e)
@@ -61,6 +62,20 @@ class Events(PythonDataSourcePlugin):
             returnValue(None)
 
         log.debug("get_embedded_health %s:", em_health)
+
+        try:
+            oa_info = yield deferToThread(ilo.get_oa_info)
+        except hpilo.IloNotARackServer:
+            ignore_comp_type = []
+        except Exception, e:
+            log.error(
+                "%s: %s", config.id, e)
+
+            returnValue(None)
+        else:
+            ignore_comp_type = ['vrm','power_supplies']
+
+        log.debug("ignore_comp_types %s:", ignore_comp_type)
 
         zenpack_yaml = read_zenpack_yaml('ZenPacks.community.HPiLO')
         if type(zenpack_yaml).__name__ != 'dict':
@@ -73,8 +88,10 @@ class Events(PythonDataSourcePlugin):
             if 'status' in comp['properties'].keys():
                 status_comps.append(comp['plural_short_label'])
 
+        log.debug("status_comps %s:", status_comps)
+
         for comp_type in em_health.keys():
-            if comp_type in status_comps:
+            if comp_type in status_comps and em_health[comp_type]:
                 for k,v in em_health[comp_type].iteritems():
                     comp_id = k.replace(" ","_")
                     if v['status'].lower() not in ['ok','n/a','good, in use','not installed']:
@@ -95,6 +112,14 @@ class Events(PythonDataSourcePlugin):
                                     'eventClass': ds0.eventClass,
                                     'summary': '{0} status: ok'.format(k),
                                 })
+            else:
+                if comp_type not in ignore_comp_type:
+                    data['events'].append({
+                                        'device': config.id,
+                                        'severity': Warning,
+                                        'eventClass': ds0.eventClass,
+                                        'summary': 'No monitoring data for {0}'.format(comp_type),
+                                    })
 
         log.debug( 'data is %s ' % (data))
         returnValue(data)
