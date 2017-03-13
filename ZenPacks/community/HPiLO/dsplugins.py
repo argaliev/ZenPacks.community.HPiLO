@@ -91,35 +91,36 @@ class Events(PythonDataSourcePlugin):
         log.debug("status_comps %s:", status_comps)
 
         for comp_type in em_health.keys():
-            if comp_type in status_comps and em_health[comp_type]:
-                for k,v in em_health[comp_type].iteritems():
-                    comp_id = k.replace(" ","_")
-                    if v['status'].lower() not in ['ok','n/a','good, in use','not installed']:
-                        data['events'].append({
-                                    'device': config.id,
-                                    'severity': ds0.severity,
-                                    'component':comp_id,
-                                    'eventKey': '{0}_status'.format(comp_id),
-                                    'eventClass': ds0.eventClass,
-                                    'summary': '{0} current status: {1}'.format(k, v['status']),
-                                })
-                    else:
-                        data['events'].append({
-                                    'device': config.id,
-                                    'severity': Clear,
-                                    'component':comp_id,
-                                    'eventKey': '{0}_status'.format(comp_id),
-                                    'eventClass': ds0.eventClass,
-                                    'summary': '{0} status: ok'.format(k),
-                                })
-            else:
-                if comp_type not in ignore_comp_type:
-                    data['events'].append({
+            if comp_type in status_comps:
+                if em_health[comp_type]:
+                    for k,v in em_health[comp_type].iteritems():
+                        comp_id = k.replace(" ","_")
+                        if v['status'].lower() not in ['ok','n/a','good, in use','not installed']:
+                            data['events'].append({
                                         'device': config.id,
-                                        'severity': Warning,
+                                        'severity': ds0.severity,
+                                        'component':comp_id,
+                                        'eventKey': '{0}_status'.format(comp_id),
                                         'eventClass': ds0.eventClass,
-                                        'summary': 'No monitoring data for {0}'.format(comp_type),
+                                        'summary': '{0} current status: {1}'.format(k, v['status']),
                                     })
+                        else:
+                            data['events'].append({
+                                        'device': config.id,
+                                        'severity': Clear,
+                                        'component':comp_id,
+                                        'eventKey': '{0}_status'.format(comp_id),
+                                        'eventClass': ds0.eventClass,
+                                        'summary': '{0} status: ok'.format(k),
+                                    })
+                else:
+                    if comp_type not in ignore_comp_type:
+                        data['events'].append({
+                                            'device': config.id,
+                                            'severity': Warning,
+                                            'eventClass': ds0.eventClass,
+                                            'summary': 'No monitoring data for {0}'.format(comp_type),
+                                        })
 
         log.debug( 'data is %s ' % (data))
         returnValue(data)
