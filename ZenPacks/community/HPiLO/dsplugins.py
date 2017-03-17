@@ -7,11 +7,7 @@ from ZenPacks.zenoss.PythonCollector.datasources.PythonDataSource import PythonD
 from Products.ZenEvents.ZenEventClasses import Warning, Error, Critical, Clear
 
 #Zenpack imports
-from ZenPacks.community.HPiLO.lib import hpilo
-from ZenPacks.community.HPiLO.utils import  validate_zproperties, read_zenpack_yaml
-import yaml
-import sys
-import os
+from ZenPacks.community.HPiLO.utils import  validate_zproperties, read_zenpack_yaml, get_ilo_data
 from pprint import pprint
 
 import logging
@@ -51,31 +47,12 @@ class Events(PythonDataSourcePlugin):
 
             returnValue(None)
 
-        ilo = hpilo.Ilo(ds0.zManageInterfaceIP, login=ds0.zILoUsername, password=ds0.zILoPassword)
+        ilo_data = yield deferToThread(get_ilo_data, ds0.zManageInterfaceIP, ds0.zILoUsername, ds0.zILoPassword)
 
-        try:
-            em_health = yield deferToThread(ilo.get_embedded_health)
-        except Exception, e:
-            log.error(
-                "%s: %s", config.id, e)
+        if type(ilo_data).__name__ != 'dict':
+            log.error(ilo_data)
 
             returnValue(None)
-
-        log.debug("get_embedded_health %s:", em_health)
-
-        try:
-            oa_info = yield deferToThread(ilo.get_oa_info)
-        except hpilo.IloNotARackServer:
-            ignore_comp_type = []
-        except Exception, e:
-            log.error(
-                "%s: %s", config.id, e)
-
-            returnValue(None)
-        else:
-            ignore_comp_type = ['vrm','power_supplies']
-
-        log.debug("ignore_comp_types %s:", ignore_comp_type)
 
         zenpack_yaml = read_zenpack_yaml('ZenPacks.community.HPiLO')
         if type(zenpack_yaml).__name__ != 'dict':
@@ -90,10 +67,10 @@ class Events(PythonDataSourcePlugin):
 
         log.debug("status_comps %s:", status_comps)
 
-        for comp_type in em_health.keys():
+        for comp_type in ilo_data.keys():
             if comp_type in status_comps:
-                if em_health[comp_type]:
-                    for k,v in em_health[comp_type].iteritems():
+                if ilo_data[comp_type]:
+                    for k,v in ilo_data[comp_type].iteritems():
                         comp_id = k.replace(" ","_")
                         if v['status'].lower() not in ['ok','n/a','good, in use','not installed']:
                             data['events'].append({
@@ -113,14 +90,6 @@ class Events(PythonDataSourcePlugin):
                                         'eventClass': ds0.eventClass,
                                         'summary': '{0} status: ok'.format(k),
                                     })
-                else:
-                    if comp_type not in ignore_comp_type:
-                        data['events'].append({
-                                            'device': config.id,
-                                            'severity': Warning,
-                                            'eventClass': ds0.eventClass,
-                                            'summary': 'No monitoring data for {0}'.format(comp_type),
-                                        })
 
         log.debug( 'data is %s ' % (data))
         returnValue(data)

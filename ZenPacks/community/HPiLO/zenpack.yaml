@@ -119,8 +119,8 @@ classes:
     plural_short_label: drive_bays
     properties:
       bay:
-        label: Bay
-        type: int
+        label: Location
+        content_width: 150
       product_id:
         label: Serial
       status:
