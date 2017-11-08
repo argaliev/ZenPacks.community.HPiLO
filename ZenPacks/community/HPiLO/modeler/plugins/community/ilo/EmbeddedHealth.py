@@ -25,10 +25,10 @@ class EmbeddedHealth(PythonPlugin):
     @inlineCallbacks
     def collect(self, device, log):
         """Asynchronously collect data from device. Return a deferred."""
-        log.info("%s: collecting data", device.id)
+        log.info("{0}: collecting data".format(device.id))
 
         if validate_zproperties(device) is not True:
-            log.error(validate_zproperties(device))
+            log.error("{0}: {1}".format(device.id, validate_zproperties(device)))
 
             returnValue(None)
 
@@ -37,13 +37,13 @@ class EmbeddedHealth(PythonPlugin):
         data = yield deferToThread(get_ilo_data, device.zManageInterfaceIP, device.zILoUsername, device.zILoPassword)
 
         if type(data).__name__ != 'dict':
-            log.error(data)
+            log.error("{0}: {1}".format(device.id, data))
 
             returnValue(None)
 
         zenpack_yaml = read_zenpack_yaml('ZenPacks.community.HPiLO')
         if type(zenpack_yaml).__name__ != 'dict':
-            log.error(zenpack_yaml)
+            log.error("{0}: {1}".format(device.id, zenpack_yaml))
 
             returnValue(None)
 

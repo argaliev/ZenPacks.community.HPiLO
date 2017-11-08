@@ -34,7 +34,7 @@ class Events(PythonDataSourcePlugin):
     @classmethod
     def params(cls, datasource, context):
         params = {}
-        log.debug(' params is %s \n' % (params))
+        log.debug(' params is {0}'.format(params))
         return params
 
     @inlineCallbacks
@@ -43,20 +43,20 @@ class Events(PythonDataSourcePlugin):
         data = self.new_data()
 
         if validate_zproperties(ds0) is not True:
-            log.error(validate_zproperties(ds0))
+            log.error("{0}: {1}".format(config.id, validate_zproperties(ds0)))
 
             returnValue(None)
 
         ilo_data = yield deferToThread(get_ilo_data, ds0.zManageInterfaceIP, ds0.zILoUsername, ds0.zILoPassword)
 
         if type(ilo_data).__name__ != 'dict':
-            log.error(ilo_data)
+            log.error("{0}: {1}".format(config.id, ilo_data))
 
             returnValue(None)
 
         zenpack_yaml = read_zenpack_yaml('ZenPacks.community.HPiLO')
         if type(zenpack_yaml).__name__ != 'dict':
-            log.error(zenpack_yaml)
+            log.error("{0}: {1}".format(config.id, zenpack_yaml))
 
             returnValue(None)
 
@@ -65,7 +65,7 @@ class Events(PythonDataSourcePlugin):
             if 'status' in comp['properties'].keys():
                 status_comps.append(comp['plural_short_label'])
 
-        log.debug("status_comps %s:", status_comps)
+        log.debug("status_comps: {0}".format(status_comps))
 
         for comp_type in ilo_data.keys():
             if comp_type in status_comps:
@@ -91,5 +91,5 @@ class Events(PythonDataSourcePlugin):
                                         'summary': '{0} status: ok'.format(k),
                                     })
 
-        log.debug( 'data is %s ' % (data))
+        log.debug( 'data is {0}'.format(data))
         returnValue(data)

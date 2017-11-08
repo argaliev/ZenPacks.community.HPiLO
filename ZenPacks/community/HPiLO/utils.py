@@ -14,7 +14,7 @@ def validate_zproperties(obj):
     for zproperty in required_zproperties:
         zvalue = getattr(obj, zproperty, None)
         if not zvalue:
-            return "%s: %s not set.", obj.id, zproperty
+            return "{0} is not set.".format(zproperty)
     return True
 
 def read_zenpack_yaml(zenpack_module):
@@ -26,7 +26,7 @@ def read_zenpack_yaml(zenpack_module):
         try:
             zenpack_yaml = yaml.load(stream)
         except yaml.YAMLError as exc:
-            return "%s: %s", config.id, exc
+            return str(exc)
     return zenpack_yaml
 
 def prepare_relname(s):
@@ -56,23 +56,23 @@ def get_ilo_data(ILoInterfaceIP, ILoUsername, ILoPassword):
     try:
         fw_version = ilo.get_fw_version()
     except Exception, e:
-        return "%s: %s", device.id, e
+        return str(e)
 
-    log.debug("get_fw_version %s:", fw_version)
+    log.debug("get_fw_version: {0}".format(fw_version))
 
     try:
         data = ilo.get_embedded_health()
     except Exception, e:
-        return "%s: %s", device.id, e
+        return str(e)
 
-    log.debug("get_embedded_health %s:", data)
+    log.debug("get_embedded_health: {0}".format(data))
 
     try:
         extra_data = ilo.get_host_data()
     except Exception, e:
-        return "%s: %s", device.id, e
+        return str(e)
 
-    log.debug("get_host_data %s:", extra_data)
+    log.debug("get_host_data: {0}".format(extra_data))
 
     comp_type_map = {'processors':4,
                      'memory':17,
