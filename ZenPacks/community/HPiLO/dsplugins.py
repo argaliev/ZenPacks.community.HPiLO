@@ -44,21 +44,69 @@ class Events(PythonDataSourcePlugin):
 
         if validate_zproperties(ds0) is not True:
             log.error("{0}: {1}".format(config.id, validate_zproperties(ds0)))
+            
+            data['events'].append({
+                                'device': config.id,
+                                'severity': ds0.severity,
+                                'eventKey': 'validate_zproperties',
+                                'eventClass': ds0.eventClass,
+                                'summary': str(validate_zproperties(ds0)),
+                            })
 
-            returnValue(None)
+            returnValue(data)
+        else:
+            data['events'].append({
+                                'device': config.id,
+                                'severity': Clear,
+                                'eventKey': 'validate_zproperties',
+                                'eventClass': ds0.eventClass,
+                                'summary': 'validate_zproperties is OK',
+                            })
 
         ilo_data = yield deferToThread(get_ilo_data, ds0.zManageInterfaceIP, ds0.zILoUsername, ds0.zILoPassword)
 
         if type(ilo_data).__name__ != 'dict':
             log.error("{0}: {1}".format(config.id, ilo_data))
+            
+            data['events'].append({
+                                'device': config.id,
+                                'severity': ds0.severity,
+                                'eventKey': 'get_ilo_data',
+                                'eventClass': ds0.eventClass,
+                                'summary': str(ilo_data),
+                            })
 
-            returnValue(None)
+            returnValue(data)
+        else:
+            data['events'].append({
+                                'device': config.id,
+                                'severity': Clear,
+                                'eventKey': 'get_ilo_data',
+                                'eventClass': ds0.eventClass,
+                                'summary': 'get_ilo_data is OK',
+                            })
 
         zenpack_yaml = read_zenpack_yaml('ZenPacks.community.HPiLO')
         if type(zenpack_yaml).__name__ != 'dict':
             log.error("{0}: {1}".format(config.id, zenpack_yaml))
+            
+            data['events'].append({
+                                'device': config.id,
+                                'severity': ds0.severity,
+                                'eventKey': 'read_zenpack_yaml',
+                                'eventClass': ds0.eventClass,
+                                'summary': str(zenpack_yaml),
+                            })
 
-            returnValue(None)
+            returnValue(data)
+        else:
+            data['events'].append({
+                                'device': config.id,
+                                'severity': Clear,
+                                'eventKey': 'read_zenpack_yaml',
+                                'eventClass': ds0.eventClass,
+                                'summary': 'read_zenpack_yaml is OK',
+                            })
 
         status_comps = []
         for comp_class, comp in zenpack_yaml['classes'].iteritems():
