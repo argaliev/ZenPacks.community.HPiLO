@@ -8,7 +8,7 @@ AUTHOR = "argaliev"
 LICENSE = "GPLv2"
 NAMESPACE_PACKAGES = ['ZenPacks', 'ZenPacks.community']
 PACKAGES = ['ZenPacks', 'ZenPacks.community', 'ZenPacks.community.HPiLO']
-INSTALL_REQUIRES = ['ZenPacks.zenoss.PythonCollector']
+INSTALL_REQUIRES = ['ZenPacks.zenoss.ZenPackLib>=2.0.8', 'ZenPacks.zenoss.PythonCollector']
 COMPAT_ZENOSS_VERS = ""
 PREV_ZENPACK_NAME = ""
 # STOP_REPLACEMENTS
