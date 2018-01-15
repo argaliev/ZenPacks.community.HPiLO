@@ -44,7 +44,7 @@ classes:
         order: 2
 
   ILoPowerSupply:
-    base: [zenpacklib.Component]
+    base: [zenpacklib.PowerSupply]
     label: Power Supplie
     plural_short_label: power_supplies
     properties:
@@ -82,7 +82,7 @@ classes:
         label: Status
 
   ILoTemperature:
-    base: [zenpacklib.Component]
+    base: [zenpacklib.TemperatureSensor]
     label: Temperature Sensor
     plural_short_label: temperature
     properties:
@@ -98,7 +98,7 @@ classes:
         label: threshold_critical
 
   ILoProcessor:
-    base: [zenpacklib.Component]
+    base: [zenpacklib.CPU]
     label: Processor
     plural_short_label: processors
     properties:
@@ -136,11 +136,11 @@ classes:
 
 class_relationships:
   - Products.ZenModel.Device.Device 1:MC ILoEmbeddedHealth
-  - Products.ZenModel.Device.Device 1:MC ILoPowerSupply
+#  - Products.ZenModel.Device.Device 1:MC ILoPowerSupply replaced with hw/powersupplies
   - Products.ZenModel.Device.Device 1:MC ILoVRM
   - Products.ZenModel.Device.Device 1:MC ILoMemory
   - Products.ZenModel.Device.Device 1:MC ILoFan
-  - Products.ZenModel.Device.Device 1:MC ILoTemperature
-  - Products.ZenModel.Device.Device 1:MC ILoProcessor
+#  - Products.ZenModel.Device.Device 1:MC ILoTemperature replaced with hw/temperaturesensors
+#  - Products.ZenModel.Device.Device 1:MC ILoProcessor replaced with hw/cpus
   - Products.ZenModel.Device.Device 1:MC ILoHDD
   - Products.ZenModel.Device.Device 1:MC ILoPort

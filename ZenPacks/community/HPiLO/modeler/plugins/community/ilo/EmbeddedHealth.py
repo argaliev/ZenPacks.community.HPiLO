@@ -47,10 +47,17 @@ class EmbeddedHealth(PythonPlugin):
 
             returnValue(None)
 
+        zenoss_compname_map = {'processors':'cpus',
+                               'power_supplies':'powersupplies',
+                               'temperature':'temperaturesensors',
+                               }
+        
         comp_map = {}
         for comp_class, comp in zenpack_yaml['classes'].iteritems():
-            comp_map[comp['plural_short_label']] = {'properties':comp['properties'].keys(),
-                                                    'class':comp_class
+            comp_map[comp['plural_short_label']] = {'properties': comp['properties'].keys(),
+                                                    'class': comp_class,
+                                                    'relname': zenoss_compname_map.get(comp['plural_short_label'],None) or prepare_relname(comp_class),
+                                                    'compname': 'hw' if comp['plural_short_label'] in zenoss_compname_map else ''
                                                     }
 
         for comp_type in data.keys():
@@ -62,9 +69,11 @@ class EmbeddedHealth(PythonPlugin):
                     for property in comp_map[comp_type]['properties']:
                         comp[property] = v[property]
                     comp_list.append(self.objectMap(comp))
-
+                
+                log.debug(comp_map[comp_type])
                 rm.append(RelationshipMap(
-                    relname=prepare_relname(comp_map[comp_type]['class']),
+                    compname=comp_map[comp_type]['compname'],
+                    relname=comp_map[comp_type]['relname'],
                     modname='ZenPacks.community.HPiLO.{0}'.format(comp_map[comp_type]['class']),
                     objmaps=comp_list,
                 ))
